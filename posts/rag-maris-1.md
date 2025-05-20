@@ -100,7 +100,7 @@ If there's one lesson we've learned from implementing RAG systems, it's this: **
 
 The retrieval component is the linchpin of any RAG system. No matter how sophisticated your generation model, it can only work with the context it's given. If the retrieval fails to surface relevant information, even the most advanced LLM will produce inadequate answers.
 
-This is especially critical for scientific content, where precision matters and hallucinations can be particularly problematic. Our approach focuses on evaluating the retrieval component independently before assessing the full system.
+This is especially critical for scientific content, where rigor matters and hallucinations can be particularly problematic. Our approach focuses on evaluating the retrieval component independently before assessing the full system.
 
 ### Synthetic Question Generation
 
@@ -115,12 +115,12 @@ Our solution: synthetic question generation. For each chunk in our corpus, we pr
 
 We carefully engineered our question generation prompt to ensure diversity, avoiding simplistic questions that merely repeat keywords from the chunk. The goal is to create questions that test the semantic understanding capabilities of our embedding model, not just keyword matching.
 
-For example, from a chunk discussing cesium-137 accumulation in marine sediments, we might generate questions like:
-- "Which radioisotope shows the highest concentration in deep-sea sediments?"
-- "How do sedimentation rates affect the vertical distribution of artificial radionuclides?"
-- "What evidence suggests that cesium can be remobilized in marine environments?"
+Each synthetic question is paired with its source chunk as the ground truth - the chunk that should ideally be retrieved when this question is asked. Authorized users can then review and refine generated questions as shown in [Fig. 1](#fig-1):
 
-Each synthetic question is paired with its source chunk as the ground truth - the chunk that should ideally be retrieved when this question is asked.
+<figure id="fig-1">
+    <img src="/static/img/posts/rag-maris-1/synthetic-questions.png" alt="Synthetic question validation">
+    <figcaption>Fig. 1: Example of MARIS RAG UI to review and validate synthetic questions</figcaption>
+</figure>
 
 ### Comprehensive Retrieval Metrics
 
@@ -128,7 +128,7 @@ With our synthetic question-chunk pairs established, we implemented a robust eva
 
 #### Recall@k
 
-We calculate Recall@k across a wide range of k values (from 1 to 40). This measures the percentage of questions where the ground truth chunk appears within the top-k retrieved chunks. By examining this metric at different cutoff points, we can understand both the precision of our top results and the overall coverage of our retrieval system.
+We calculate Recall@k across a wide range of k values (from 1 to 40). This measures the percentage of questions where the ground truth chunk appears within the top-k retrieved chunks. By examining this metric at different cutoff points, we can understand both the relevancy of our top results and the overall coverage of our retrieval system.
 
 #### Mean Reciprocal Rank (MRR)
 
@@ -164,7 +164,7 @@ By establishing this rigorous evaluation framework early in our implementation, 
 
 The final piece of our RAG implementation puzzle was crafting prompts that would effectively bridge the gap between technical scientific content and diverse user needs. Prompt engineering for scientific RAG systems differs significantly from general-purpose applications, particularly when working with specialized content like marine radioactivity research.
 
-### Balancing Precision with Accessibility
+### Balancing Relevance with Accessibility
 
 Our system needed to serve both domain experts and the general public, requiring prompts that could adapt to different levels of technical understanding. We developed a two-tier approach:
 
@@ -198,6 +198,11 @@ Content Transformation
 - When quoting, use quotation marks and provide precise citation
 - Focus on communicating core concepts, findings, and facts rather than reproducing text
 ```
+
+<figure id="fig-2">
+    <img src="/static/img/posts/rag-maris-1/chat-answer-example.png" alt="Synthetic question validation">
+    <figcaption>Fig. 2: Example of a response to the following question: "What are the main anthropogenic radionuclides present in seafood?"</figcaption>
+</figure>
 
 ### Scientific Accuracy and Uncertainty
 
@@ -279,7 +284,17 @@ While this blog post has outlined our overall workflow and approach, we've only 
 
 4. **Error analysis and continuous improvement** - We'll establish processes for monitoring performance, identifying failure patterns, and implementing targeted improvements
 
-### Technology Stack
+## Conclusion
+
+Building a RAG system for specialized scientific content presents unique challenges, from PDF parsing complexities to the need for rigorous scientific accuracy. Our journey with MARIS has reinforced that successful implementation requires both technical expertise and domain knowledge.
+
+By sharing our approach, challenges, and early results, we hope to contribute to the growing body of knowledge around practical RAG implementations. As we continue to refine our system, we'll provide updates on our progress and insights that may help others tackling similar challenges.
+
+The potential impact of making specialized scientific knowledge more accessible extends far beyond our specific use case. As more organizations implement similar systems for their domain-specific knowledge bases, we may see a democratization of expertise that accelerates scientific progress and informed decision-making.
+
+*Our application is now accessible at [https://marise-dev.pla.sh](https://marise-dev.pla.sh) (currently by request only), where users can not only query the system but also provide feedback and annotations that help us continually improve performance.*
+
+## Technology Stack
 
 While we've focused primarily on methodology in this post, our implementation relies on several key technologies that have proven invaluable:
 
@@ -288,20 +303,13 @@ While we've focused primarily on methodology in this post, our implementation re
 - [LanceDB](https://docs.lancedb.com/enterprise/introduction) as our vector database for efficient similarity search
 - [FastHTML](https://www.fastht.ml) for creating and serving our web application
 
-Our application is now accessible at [https://marise-dev.pla.sh](https://marise-dev.pla.sh) (currently by request only), where users can not only query the system but also provide feedback and annotations that help us continually improve performance.
 
-### Learning Resources
+
+## Learning Resources
 
 For those interested in building similar systems, several resources have been particularly valuable in our journey:
 
 - [Isaac Flath's blog](https://isaacflath.com) for practical RAG implementation insights and FastHTML
 - Jason Liu's course on [Systematically Improving RAG Applications](https://maven.com/applied-llms/rag-playbook) - while not inexpensive, it provided a structured approach that accelerated our development
 - [Phil Schmid's guide on structured extraction with Gemini](https://www.philschmid.de/gemini-pdf-to-data)
-
-### Conclusion
-
-Building a RAG system for specialized scientific content presents unique challenges, from PDF parsing complexities to the need for rigorous scientific accuracy. Our journey with MARIS has reinforced that successful implementation requires both technical expertise and domain knowledge.
-
-By sharing our approach, challenges, and early results, we hope to contribute to the growing body of knowledge around practical RAG implementations. As we continue to refine our system, we'll provide updates on our progress and insights that may help others tackling similar challenges.
-
-The potential impact of making specialized scientific knowledge more accessible extends far beyond our specific use case. As more organizations implement similar systems for their domain-specific knowledge bases, we may see a democratization of expertise that accelerates scientific progress and informed decision-making.
+- [J. Howard & Answer.ai's team "How to Solve It With Code" course](https://solveit.fast.ai)

@@ -1,7 +1,7 @@
 ---
 title: A Decade of DSS4NAFA
 summary: Protecting Our Food After Nuclear Emergencies
-date: May 19, 2025
+date: May 17, 2025
 tags:
   - Nuclear Emergency Response
   - Decision Making System
@@ -35,13 +35,7 @@ Nuclear emergencies don't respect national borders. Radiation can travel hundred
 
 DSS4NAFA has been designed with collaboration in mind. It complements existing systems like the IAEA's [International Radiation Monitoring Information System (IRMIS)](https://www.iaea.org/publications/13641/international-radiation-monitoring-information-system), which monitors environmental radiation levels. While IRMIS tracks radiation in the environment, DSS4NAFA focuses specifically on food safety and agricultural decision-making.
 
-The system has been tested and refined through international partnerships:
-
-- In Belgium, exercises tested how DSS4NAFA could integrate with existing emergency response systems
-- In China, researchers explored how satellite data could help prioritize sampling efforts
-- In Japan, experts examined how DSS4NAFA might fit within their national emergency frameworks
-
-These collaborations have strengthened the system while building international relationships that would prove invaluable during an actual emergency.
+The system has been tested and refined through international partnerships with Belgium, China, Japan and many other member states. These collaborations have strengthened the system while building international relationships that would prove invaluable during an actual emergency.
 
 ## Building a Flexible Framework for the Future
 

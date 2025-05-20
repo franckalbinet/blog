@@ -9,7 +9,7 @@ from ui_components import *
 app, rt = fast_app(
     title="Franck Albinet's blog",
     hdrs=Theme.slate.headers(mode="light", radii="small"),
-    static_path="static",
+    # static_path="static/img",
     live=True
 )
 
@@ -40,7 +40,7 @@ def Navbar(active_route="/"):
                     href="/",
                     cls=TextT.medium
                 ),
-                cls="gap-x-2 items-center"
+                cls="gap-x-2 items-center mt-5"
             )
         )
     )
@@ -67,13 +67,13 @@ def post_links(posts):
 @rt('/')
 def get():
     # Load posts on each request
-    posts = load_posts('posts')
-    
+    posts = [o for o in load_posts('posts') if not o.slug.startswith('_')]
+        
     return layout(
         Div(
             H1("Index", cls="mb-10" + TextT.light),
             Div(*post_links(posts)),
-            cls="space-y-4"
+            cls="space-y-4 mt-5"
         ),
         active_route="/"
     )
@@ -142,7 +142,7 @@ def get(post_slug: str):
     posts = load_posts('posts')
     
     # Find the post or return 404
-    post = next((p for p in posts if p.slug == post_slug), None) 
+    post = next((p for p in posts if p.slug == post_slug and not p.slug.startswith('_')), None) 
     
     # Extract headings for TOC
     headings = []
@@ -151,16 +151,13 @@ def get(post_slug: str):
             heading = line[3:].strip()
             anchor = heading.lower().replace(' ', '-')
             headings.append((heading, anchor))
-            
-    print(headings)
-        
+                
     # Calculate reading time (rough estimate: 200 words per minute)
     word_count = len(post.content.split())
     reading_time = max(1, round(word_count / 200))
     
     # Create scrollspy navigation links
     scrollspy_links = [A(heading, href=f"#{anchor}") for heading, anchor in headings]
-    print(scrollspy_links)
     
     return layout(
         Div(
@@ -177,7 +174,7 @@ def get(post_slug: str):
                         ),
                         # cls="max-w-2xl"
                     ),
-                    cls="w-7/12 p-6"
+                    cls="w-7/12 pr-6 pl-6 mt-10 mb-5"
                 ),
                 
                 # Right column - Empty space to maintain alignment
@@ -200,11 +197,12 @@ def get(post_slug: str):
                     Div(
                         render_md(post.content, class_map_mods={
                             'p': TextT.lg +  "mb-5 mt-2",
-                            'h2': "scroll-mt-20" + TextT.bold + TextT.lg 
+                            'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
+                            "figcaption": TextT.center
                         }),
                         # cls="max-w-2xl"
                     ),
-                    cls="w-7/12 p-6"
+                    cls="w-7/12 pl-6 pr-6"
                 ),  
 
                 # Right column - TOC (sticky) using MonsterUI's scrollspy
@@ -221,5 +219,11 @@ def get(post_slug: str):
         active_route=f"/posts/{post_slug}"
     )
 
+
+from starlette.responses import FileResponse
+
+@rt("/static/{path:path}")
+async def static_files(path: str):
+    return FileResponse(f"static/{path}")
 
 serve(port=5002)
