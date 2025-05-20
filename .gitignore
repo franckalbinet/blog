@@ -2,6 +2,7 @@ _docs/
 _proc/
 _db/
 
+.sesskey
 *.bak
 .gitattributes
 .last_checked

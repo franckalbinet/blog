@@ -1,7 +1,8 @@
 from fasthtml.common import *
 from monsterui.all import *
-from fh_posts.all import *
+# from fh_posts.all import *
 from pathlib import Path
+from post_utils import *
 from ui_components import *
 
 # App setup
@@ -11,7 +12,6 @@ app, rt = fast_app(
     static_path="static",
     live=True
 )
-
 
 def layout(content, active_route="/"):
     """Wrap content in consistent page layout with navigation."""
@@ -39,41 +39,44 @@ def Navbar(active_route="/"):
                     'FR.ANCKALBI.NET', 
                     href="/",
                     cls=TextT.medium
-                    # cls=TextT.lg + TextT.gray + TextT.medium
                 ),
                 cls="gap-x-2 items-center"
             )
         )
     )
 
-
+def post_links(posts):
+    return [
+        A(
+            Div(
+                H5(post.title, cls="hover:underline"),
+                P(post.summary, cls="text-sm"),
+                DivHStacked(
+                    P(post.date, cls=TextT.muted + "text-sm"),
+                    P(" - "),   
+                    P(", ".join(post.tags), cls=TextT.muted + "text-sm"),
+                    cls="gap-x-2"
+                ),
+                cls="mb-4"
+            ),
+            href=f"/post/{post.slug}"
+        )
+        for post in posts
+    ]
 
 @rt('/')
 def get():
+    # Load posts on each request
+    posts = load_posts('posts')
+    
     return layout(
         Div(
             H1("Index", cls="mb-10" + TextT.light),
-            Div(
-                Div(
-                    A("Getting Started with FastHTML", href="/posts/getting-started", cls=TextT.medium),
-                    P("March 15, 2024", cls=TextT.muted + "text-sm"),
-                    cls="mb-4"
-                ),
-                Div(
-                    A("Building a Modern Blog", href="/posts/modern-blog", cls=TextT.medium),
-                    P("March 10, 2024", cls=TextT.muted + "text-sm"),
-                    cls="mb-4"
-                ),
-                Div(
-                    A("Web Development Tips", href="/posts/web-dev-tips", cls=TextT.medium),
-                    P("March 5, 2024", cls=TextT.muted + "text-sm"),
-                    cls="mb-4"
-                ),
-                cls="space-y-4"
-            ),
-            cls="mt-5"
+            Div(*post_links(posts)),
+            cls="space-y-4"
         ),
-        active_route="/")
+        active_route="/"
+    )
 
 @rt('/about')
 def about(): 
@@ -99,7 +102,7 @@ def about():
                     DivVStacked(
                         H3("Areas of Expertise", cls=TextT.medium + TextT.bold),
                         P("Data Science & AI"),
-                        P("Geospatial Intelligence"),
+                        P("Geospatial Analysis"),
                         P("Nuclear Emergency Management"),
                         P("Humanitarian Response"),
                         cls="gap-2"
@@ -132,5 +135,91 @@ def about():
         ),
         active_route="/about"
     )
+
+@rt("/post/{post_slug}")
+def get(post_slug: str):
+    # Load posts on each request
+    posts = load_posts('posts')
+    
+    # Find the post or return 404
+    post = next((p for p in posts if p.slug == post_slug), None) 
+    
+    # Extract headings for TOC
+    headings = []
+    for line in post.content.split('\n'):
+        if line.startswith('## '):
+            heading = line[3:].strip()
+            anchor = heading.lower().replace(' ', '-')
+            headings.append((heading, anchor))
+            
+    print(headings)
+        
+    # Calculate reading time (rough estimate: 200 words per minute)
+    word_count = len(post.content.split())
+    reading_time = max(1, round(word_count / 200))
+    
+    # Create scrollspy navigation links
+    scrollspy_links = [A(heading, href=f"#{anchor}") for heading, anchor in headings]
+    print(scrollspy_links)
+    
+    return layout(
+        Div(
+            DivHStacked(
+                # Left column - Metadata
+                Div(cls="w-2/12 p-4 flex flex-col items-start self-start"),
+                # Middle column - Title
+                Div(
+                    Div(
+                        H2(post.title, cls="mb-5 hover:underline" + TextT.light),
+                        Div(
+                            H4(post.summary, cls=TextT.muted + TextT.light),
+                            cls="mb-5"
+                        ),
+                        # cls="max-w-2xl"
+                    ),
+                    cls="w-7/12 p-6"
+                ),
+                
+                # Right column - Empty space to maintain alignment
+                Div(cls="w-3/12")
+            ),
+
+            # Main content row
+            DivHStacked(
+                DivVStacked(
+                    P(post.date, cls=TextT.muted),
+                    P(f"{reading_time} min read", cls=TextT.muted),
+                    # Add code link if available in post metadata
+                    *([A("View Code", href=post.code_url, cls="text-blue-600 hover:underline")] 
+                      if hasattr(post, 'code_url') else []),
+                    cls="w-2/12 p-4 top-20 flex flex-col items-start self-start"
+                ),
+                
+                # Middle column - Content
+                Div(
+                    Div(
+                        render_md(post.content, class_map_mods={
+                            'p': TextT.lg +  "mb-5 mt-2",
+                            'h2': "scroll-mt-20" + TextT.bold + TextT.lg 
+                        }),
+                        # cls="max-w-2xl"
+                    ),
+                    cls="w-7/12 p-6"
+                ),  
+
+                # Right column - TOC (sticky) using MonsterUI's scrollspy
+                Div(
+                    NavContainer(
+                        *map(Li, scrollspy_links),
+                        uk_scrollspy_nav=True,
+                        cls=(NavT.default)
+                    ),
+                    cls="w-3/12 flex flex-col items-start self-start sticky top-10"
+                ),
+            ),
+        ),
+        active_route=f"/posts/{post_slug}"
+    )
+
 
 serve(port=5002)
