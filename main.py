@@ -40,7 +40,7 @@ def Navbar(active_route="/"):
                     href="/",
                     cls=TextT.medium
                 ),
-                cls="gap-x-2 items-center"
+                cls="gap-x-2 items-center mt-5"
             )
         )
     )
@@ -84,52 +84,59 @@ def about():
     return layout(
         Div(
             H1("About me", cls="mb-10" + TextT.light),
-            DivHStacked(
-                # Left column - Personal info
-                DivVStacked(
-                    DivVStacked(
-                        H3("Franck Albinet", cls=TextT.bold),
-                        P("Data Science & AI Consultant", cls=TextT.muted),
-                        cls="gap-2"
-                    ),
-                    Divider(cls=DividerT.sm),
-                    DivVStacked(
-                        H3("Location", cls=TextT.medium + TextT.bold),
-                        P("Guéthary, France", cls=TextT.muted),
-                        cls="gap-2"
-                    ),
-                    Divider(cls=DividerT.sm),   
-                    DivVStacked(
-                        H3("Areas of Expertise", cls=TextT.medium + TextT.bold),
-                        P("Data Science & AI"),
-                        P("Geospatial Analysis"),
-                        P("Nuclear Emergency Management"),
-                        P("Humanitarian Response"),
-                        cls="gap-2"
-                    ),
-                    Divider(cls=DividerT.sm),
-                    H3("Connect", cls=TextT.medium + TextT.bold),
-                    DivHStacked(
-                        DivVStacked(
-                            SocialLink("linkedin", "LinkedIn", "https://linkedin.com/in/franckalbinet"),
-                            SocialLink("github", "GitHub", "https://github.com/franckalbinet"),
-                            cls="gap-2"
-                        ),
-                        DivVStacked(
-                            SocialLink("cloud", "BlueSky", "https://bsky.app/profile/francobollo.bsky.social"),
-                            SocialLink("mail", "Email", "mailto:franckalbinet@gmail.com"),
-                            cls="gap-2"
-                        ),
-                        cls="gap-2"
-                    ),
-                    cls="w-1/3 p-6 gap-y-4"
-                ),
-                # Right column - Bio
+            Grid(
+                # Left column - Personal info (1/3)
                 Div(
-                    render_md(bio, class_map_mods={'p': TextT.medium + "mb-5"}),
-                    cls="w-2/3 p-6 gap-y-4"
+                    DivVStacked(
+                        DivVStacked(
+                            H3("Franck Albinet", cls=TextT.bold),
+                            P("Data Science & AI Consultant", cls=TextT.muted),
+                            cls="gap-2"
+                        ),
+                        Divider(cls=DividerT.sm),
+                        DivVStacked(
+                            H3("Location", cls=TextT.medium + TextT.bold),
+                            P("Guéthary, France", cls=TextT.muted),
+                            cls="gap-2"
+                        ),
+                        Divider(cls=DividerT.sm),   
+                        DivVStacked(
+                            H3("Areas of Expertise", cls=TextT.medium + TextT.bold),
+                            P("Data Science & AI"),
+                            P("Geospatial Analysis"),
+                            P("Nuclear Emergency Management"),
+                            P("Humanitarian Response"),
+                            cls="gap-2"
+                        ),
+                        Divider(cls=DividerT.sm),
+                        H3("Connect", cls=TextT.medium + TextT.bold),
+                        DivHStacked(
+                            DivVStacked(
+                                SocialLink("linkedin", "LinkedIn", "https://linkedin.com/in/franckalbinet"),
+                                SocialLink("github", "GitHub", "https://github.com/franckalbinet"),
+                                cls="gap-2"
+                            ),
+                            DivVStacked(
+                                SocialLink("cloud", "BlueSky", "https://bsky.app/profile/francobollo.bsky.social"),
+                                SocialLink("mail", "Email", "mailto:franckalbinet@gmail.com"),
+                                cls="gap-2"
+                            ),
+                            cls="gap-2"
+                        ),
+                        cls="p-6 gap-y-4"
+                    ),
+                    cls="col-span-4 hidden md:block pt-20"  # Changed from col-span-3 to col-span-4 (1/3 of 12)
                 ),
-                cls="gap-y-8"
+                # Right column - Bio (2/3)
+                Div(
+                    render_md(bio, class_map_mods={'p': TextT.lg + "mb-5"}),
+                    cls="col-span-8 p-6"  # Changed from col-span-9 to col-span-8 (2/3 of 12)
+                ),
+                cols_sm=1,     # 1 column on small screens
+                cols_md=12,    # 12-column grid on medium screens
+                cols_lg=12,    # 12-column grid on large screens
+                cols_xl=12,    # 12-column grid on extra large screens
+                cls="mt-5"
             ),
             cls="mt-5"
         ),
@@ -160,62 +167,104 @@ def get(post_slug: str):
     scrollspy_links = [A(heading, href=f"#{anchor}") for heading, anchor in headings]
     
     return layout(
-        Div(
-            DivHStacked(
-                # Left column - Metadata
-                Div(cls="w-2/12 p-4 flex flex-col items-start self-start"),
-                # Middle column - Title
-                Div(
-                    Div(
-                        H2(post.title, cls="mb-5 hover:underline" + TextT.light),
-                        Div(
-                            H4(post.summary, cls=TextT.muted + TextT.light),
-                            cls="mb-5"
-                        ),
-                        # cls="max-w-2xl"
-                    ),
-                    cls="w-7/12 pr-6 pl-6 mt-10 mb-5"
-                ),
-                
-                # Right column - Empty space to maintain alignment
-                Div(cls="w-3/12")
-            ),
-
-            # Main content row
-            DivHStacked(
+        Grid(
+            Div(
                 DivVStacked(
                     P(post.date, cls=TextT.muted),
                     P(f"{reading_time} min read", cls=TextT.muted),
                     # Add code link if available in post metadata
                     *([A("View Code", href=post.code_url, cls="text-blue-600 hover:underline")] 
                       if hasattr(post, 'code_url') else []),
-                    cls="w-2/12 p-4 top-20 flex flex-col items-start self-start"
+                    cls="gap-y-1"
                 ),
-                
-                # Middle column - Content
-                Div(
-                    Div(
-                        render_md(post.content, class_map_mods={
-                            'p': TextT.lg +  "mb-5 mt-2",
-                            'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
-                            "figcaption": TextT.center
-                        }),
-                        # cls="max-w-2xl"
-                    ),
-                    cls="w-7/12 pl-6 pr-6"
-                ),  
-
-                # Right column - TOC (sticky) using MonsterUI's scrollspy
-                Div(
-                    NavContainer(
-                        *map(Li, scrollspy_links),
-                        uk_scrollspy_nav=True,
-                        cls=(NavT.default)
-                    ),
-                    cls="w-3/12 flex flex-col items-start self-start sticky top-10"
-                ),
+                cls="col-span-2 hidden md:block pt-60"
             ),
+            Div(
+                Div(
+                    H2(post.title, cls="mb-5 hover:underline" + TextT.light),
+                    H4(post.summary, cls=TextT.muted + TextT.light),
+                    cls="mb-10"
+                ),
+                render_md(post.content, class_map_mods={
+                    'p': TextT.lg +  "mb-5 mt-2",
+                    'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
+                    "figcaption": TextT.center
+                }),
+                cls="col-span-7 p-4"
+            ),
+            Div(
+                NavContainer(
+                    *map(Li, scrollspy_links),
+                    uk_scrollspy_nav=True,
+                    sticky=True,
+                    cls=(NavT.default, "top-20")
+                ),
+                cls="col-span-3 hidden md:block p-4 sticky top-10 pt-60"
+            ),
+            cols_sm=1,     # 1 column on small screens
+            cols_md=12,    # 12-column grid on medium screens
+            cols_lg=12,    # 12-column grid on large screens
+            cols_xl=12,    # 12-column grid on extra large screens
+            cls="mt-10"
+            
+            
         ),
+        # Div(
+        #     DivHStacked(
+        #         # Left column - Metadata
+        #         Div(cls="w-2/12 p-4 flex flex-col items-start self-start"),
+        #         # Middle column - Title
+        #         Div(
+        #             Div(
+        #                 H2(post.title, cls="mb-5 hover:underline" + TextT.light),
+        #                 Div(
+        #                     H4(post.summary, cls=TextT.muted + TextT.light),
+        #                     cls="mb-5"
+        #                 ),
+        #                 # cls="max-w-2xl"
+        #             ),
+        #             cls="w-7/12 pr-6 pl-6 mt-10 mb-5"
+        #         ),
+                
+        #         # Right column - Empty space to maintain alignment
+        #         Div(cls="w-3/12")
+        #     ),
+
+        #     # Main content row
+        #     DivHStacked(
+        #         DivVStacked(
+        #             P(post.date, cls=TextT.muted),
+        #             P(f"{reading_time} min read", cls=TextT.muted),
+        #             # Add code link if available in post metadata
+        #             *([A("View Code", href=post.code_url, cls="text-blue-600 hover:underline")] 
+        #               if hasattr(post, 'code_url') else []),
+        #             cls="w-2/12 p-4 top-20 flex flex-col items-start self-start"
+        #         ),
+                
+        #         # Middle column - Content
+        #         Div(
+        #             Div(
+        #                 render_md(post.content, class_map_mods={
+        #                     'p': TextT.lg +  "mb-5 mt-2",
+        #                     'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
+        #                     "figcaption": TextT.center
+        #                 }),
+        #                 # cls="max-w-2xl"
+        #             ),
+        #             cls="w-7/12 pl-6 pr-6"
+        #         ),  
+
+        #         # Right column - TOC (sticky) using MonsterUI's scrollspy
+        #         Div(
+        #             NavContainer(
+        #                 *map(Li, scrollspy_links),
+        #                 uk_scrollspy_nav=True,
+        #                 cls=(NavT.default)
+        #             ),
+        #             cls="w-3/12 flex flex-col items-start self-start sticky top-10"
+        #         ),
+        #     ),
+        # ),
         active_route=f"/posts/{post_slug}"
     )
 
