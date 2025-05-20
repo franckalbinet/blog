@@ -40,7 +40,7 @@ def Navbar(active_route="/"):
                     href="/",
                     cls=TextT.medium
                 ),
-                cls="gap-x-2 items-center mt-5"
+                cls="gap-x-2 items-center"
             )
         )
     )
@@ -226,4 +226,4 @@ from starlette.responses import FileResponse
 async def static_files(path: str):
     return FileResponse(f"static/{path}")
 
-serve(port=5002)
+serve()
