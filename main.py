@@ -9,13 +9,16 @@ from ui_components import *
 app, rt = fast_app(
     title="Franck Albinet's blog",
     hdrs=Theme.slate.headers(mode="light", radii="small"),
-    # static_path="static/img",
     live=True
 )
 
 def layout(content, active_route="/"):
     """Wrap content in consistent page layout with navigation."""
-    return Div(Navbar(active_route), Container(content), cls="ml-20 mr-20")
+    return Div(
+        Navbar(active_route), 
+        Container(content), 
+        cls="mx-4 md:mx-8 lg:mx-20"  # Responsive margins
+    )
 
 def Navbar(active_route="/"):
     """Create a consistent navbar with active route highlighting"""
