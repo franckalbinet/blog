@@ -209,62 +209,6 @@ def get(post_slug: str):
             
             
         ),
-        # Div(
-        #     DivHStacked(
-        #         # Left column - Metadata
-        #         Div(cls="w-2/12 p-4 flex flex-col items-start self-start"),
-        #         # Middle column - Title
-        #         Div(
-        #             Div(
-        #                 H2(post.title, cls="mb-5 hover:underline" + TextT.light),
-        #                 Div(
-        #                     H4(post.summary, cls=TextT.muted + TextT.light),
-        #                     cls="mb-5"
-        #                 ),
-        #                 # cls="max-w-2xl"
-        #             ),
-        #             cls="w-7/12 pr-6 pl-6 mt-10 mb-5"
-        #         ),
-                
-        #         # Right column - Empty space to maintain alignment
-        #         Div(cls="w-3/12")
-        #     ),
-
-        #     # Main content row
-        #     DivHStacked(
-        #         DivVStacked(
-        #             P(post.date, cls=TextT.muted),
-        #             P(f"{reading_time} min read", cls=TextT.muted),
-        #             # Add code link if available in post metadata
-        #             *([A("View Code", href=post.code_url, cls="text-blue-600 hover:underline")] 
-        #               if hasattr(post, 'code_url') else []),
-        #             cls="w-2/12 p-4 top-20 flex flex-col items-start self-start"
-        #         ),
-                
-        #         # Middle column - Content
-        #         Div(
-        #             Div(
-        #                 render_md(post.content, class_map_mods={
-        #                     'p': TextT.lg +  "mb-5 mt-2",
-        #                     'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
-        #                     "figcaption": TextT.center
-        #                 }),
-        #                 # cls="max-w-2xl"
-        #             ),
-        #             cls="w-7/12 pl-6 pr-6"
-        #         ),  
-
-        #         # Right column - TOC (sticky) using MonsterUI's scrollspy
-        #         Div(
-        #             NavContainer(
-        #                 *map(Li, scrollspy_links),
-        #                 uk_scrollspy_nav=True,
-        #                 cls=(NavT.default)
-        #             ),
-        #             cls="w-3/12 flex flex-col items-start self-start sticky top-10"
-        #         ),
-        #     ),
-        # ),
         active_route=f"/posts/{post_slug}"
     )
 
