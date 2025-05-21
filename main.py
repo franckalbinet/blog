@@ -23,9 +23,9 @@ def layout(content, active_route="/"):
 def Navbar(active_route="/"):
     """Create a consistent navbar with active route highlighting"""
     links = [
-        A("BLOG", href='/', cls=TextT.muted + " hover:text-gray-800" if active_route != "/" else ""),    
+        A("BLOG", href='/', cls=TextT.muted + " hover:text-gray-800 hover:underline" if active_route != "/" else ""),    
         # A("PROJECTS", href='/projects', cls=TextT.muted + " hover:text-gray-500" if active_route != "/projects" else ""),    
-        A("ABOUT ME", href='/about', cls=TextT.muted + " hover:text-gray-800" if active_route != "/about" else ""),
+        A("ABOUT ME", href='/about', cls=TextT.muted + " hover:text-gray-800 hover:underline" if active_route != "/about" else ""),
     ]
     return NavBar(
         DivHStacked(
@@ -41,7 +41,7 @@ def Navbar(active_route="/"):
                 A(
                     'FR.ANCKALBI.NET', 
                     href="/",
-                    cls=TextT.extrabold
+                    cls=TextT.bold + " hover:underline"
                 ),
                 cls="gap-x-2 items-center mt-5"
             )
@@ -86,7 +86,6 @@ def about():
     bio = Path("about.md").read_text()
     return layout(
         Div(
-            H1("About me", cls="mb-10" + TextT.light),
             Grid(
                 # Left column - Personal info (1/3)
                 Div(
@@ -132,6 +131,7 @@ def about():
                 ),
                 # Right column - Bio (2/3)
                 Div(
+                    H1("About me", cls="mb-10" + TextT.light),
                     render_md(bio, class_map_mods={'p': TextT.lg + "mb-5"}),
                     cls="col-span-8 p-6"  # Changed from col-span-9 to col-span-8 (2/3 of 12)
                 ),
@@ -141,7 +141,7 @@ def about():
                 cols_xl=12,    # 12-column grid on extra large screens
                 cls="mt-5"
             ),
-            cls="mt-5"
+            cls="mt-10"
         ),
         active_route="/about"
     )
@@ -184,7 +184,7 @@ def get(post_slug: str):
             ),
             Div(
                 Div(
-                    H2(post.title, cls="mb-5 hover:underline" + TextT.light),
+                    H2(post.title, cls="hover:underline" + TextT.light),
                     H4(post.summary, cls=TextT.muted + TextT.light),
                     cls="mb-10"
                 ),
