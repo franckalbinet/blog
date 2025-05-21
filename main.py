@@ -17,7 +17,7 @@ def layout(content, active_route="/"):
     return Div(
         Navbar(active_route), 
         Container(content), 
-        cls="mx-4 md:mx-8 lg:mx-20"  # Responsive margins
+        cls="lg:mx-10 xl:mx-20"  # Responsive margins
     )
 
 def Navbar(active_route="/"):
