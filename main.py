@@ -30,7 +30,7 @@ def Navbar(active_route="/"):
     return NavBar(
         DivHStacked(
             *links,
-            cls="gap-x-10" + TextT.medium
+            cls="gap-x-10" + TextT.bold
         ),
         brand=Div(
             DivHStacked(
@@ -41,7 +41,7 @@ def Navbar(active_route="/"):
                 A(
                     'FR.ANCKALBI.NET', 
                     href="/",
-                    cls=TextT.medium
+                    cls=TextT.extrabold
                 ),
                 cls="gap-x-2 items-center mt-5"
             )
@@ -202,7 +202,7 @@ def get(post_slug: str):
                     sticky=True,
                     cls=(NavT.default, "top-20")
                 ),
-                cls="col-span-3 hidden md:block p-4 sticky top-10 pt-60"
+                cls="col-span-3 hidden md:block pl-4 sticky pt-60"
             ),
             cols_sm=1,     # 1 column on small screens
             cols_md=12,    # 12-column grid on medium screens
