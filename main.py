@@ -1,14 +1,39 @@
 from fasthtml.common import *
 from monsterui.all import *
-# from fh_posts.all import *
+from fh_posts.all import *
 from pathlib import Path
-from post_utils import *
+# from post_utils import *
 from ui_components import *
+from bs4 import BeautifulSoup
 
 # App setup
 app, rt = fast_app(
     title="Franck Albinet's blog",
-    hdrs=Theme.slate.headers(mode="light", radii="small"),
+    # hdrs=Theme.slate.headers(mode="light", radii="small"),
+    hdrs=(
+        Theme.zinc.headers(mode='light'), 
+        HighlightJS(langs=["python", "bash", "yaml", "json"], light="atom-one-dark"),
+        # Link(rel="icon", type="image/x-icon", href="/images/favicon.ico"),
+        # Link(rel="mask-icon", type="image/png", href="/images/apple-touch-icon.png")
+        # Add KaTeX CSS and JS
+        Link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"),
+        Script(src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"),
+        Script(src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"),
+        # Add KaTeX initialization script
+        # Script("""
+        #     document.addEventListener("DOMContentLoaded", function() {
+        #         renderMathInElement(document.body, {
+        #             delimiters: [
+        #                 {left: "$$", right: "$$", display: true},
+        #                 {left: "$", right: "$", display: false},
+        #                 {left: "\\[", right: "\\]", display: true},
+        #                 {left: "\\(", right: "\\)", display: false}
+        #             ],
+        #             throwOnError: false
+        #         });
+        #     });
+        # """)
+    ),
     live=True
 )
 
@@ -71,7 +96,8 @@ def post_links(posts):
 def get():
     # Load posts on each request
     posts = [o for o in load_posts('posts') if not o.slug.startswith('_')]
-        
+    # posts = load_posts('posts')
+    
     return layout(
         Div(
             H1("Index", cls="mb-10" + TextT.light),
@@ -146,28 +172,35 @@ def about():
         active_route="/about"
     )
 
+def add_h2_anchors(html_content):
+    """Add href attributes to h2 tags in the rendered HTML content."""
+    soup = BeautifulSoup(str(html_content), 'html.parser')
+    for h2 in soup.find_all('h2'):
+        anchor = h2.get_text().lower().replace(' ', '-')
+        h2['href'] = f"#{anchor}"
+        h2['id'] = anchor
+    return soup
+
+def get_headings(post):
+    soup = BeautifulSoup(str(post.render()), 'html.parser')
+    h2_tags = soup.find_all('h2')
+    headings = []
+    for tag in h2_tags:
+        anchor = tag.get_text().lower().replace(' ', '-')
+        headings.append((tag.get_text(), anchor))
+    return headings
+
+def get_reading_time(post):
+    word_count = len(str(post.render()).split())
+    reading_time = max(1, round(word_count / 200))
+    return reading_time
+
 @rt("/post/{post_slug}")
 def get(post_slug: str):
-    # Load posts on each request
-    posts = load_posts('posts')
-    
-    # Find the post or return 404
-    post = next((p for p in posts if p.slug == post_slug and not p.slug.startswith('_')), None) 
-    
-    # Extract headings for TOC
-    headings = []
-    for line in post.content.split('\n'):
-        if line.startswith('## '):
-            heading = line[3:].strip()
-            anchor = heading.lower().replace(' ', '-')
-            headings.append((heading, anchor))
-                
-    # Calculate reading time (rough estimate: 200 words per minute)
-    word_count = len(post.content.split())
-    reading_time = max(1, round(word_count / 200))
-    
-    # Create scrollspy navigation links
-    scrollspy_links = [A(heading, href=f"#{anchor}") for heading, anchor in headings]
+    post = next((p for p in load_posts('posts') if p.slug == post_slug), None) 
+    reading_time = get_reading_time(post)
+    scrollspy_links = [A(heading, href=f"#{anchor}") for heading, anchor in get_headings(post)]
+    rendered_content = add_h2_anchors(post.render(open_links_new_window=True))
     
     return layout(
         Grid(
@@ -188,11 +221,14 @@ def get(post_slug: str):
                     H4(post.summary, cls=TextT.muted + TextT.light),
                     cls="mb-10"
                 ),
-                render_md(post.content, class_map_mods={
-                    'p': TextT.lg +  "mb-5 mt-2",
-                    'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
-                    "figcaption": TextT.center
-                }),
+                
+                # render_md(post.content, class_map_mods={
+                #     'p': TextT.lg +  "mb-5 mt-2",
+                #     'h2': "scroll-mt-20" + TextT.bold + TextT.lg,
+                #     "figcaption": TextT.center
+                # }),
+                Article(rendered_content),
+                
                 cls="col-span-7 p-4"
             ),
             Div(

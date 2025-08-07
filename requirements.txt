@@ -1,3 +1,6 @@
 python-fasthtml
 monsterui
 fh-posts
+rich
+beautifulsoup4
+ipykernel
